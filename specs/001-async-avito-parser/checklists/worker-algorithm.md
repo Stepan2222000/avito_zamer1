@@ -1,0 +1,16 @@
+# Checklist — Worker Algorithm Requirements
+
+- Are стартовые шаги воркера (загрузка config.py, выбор прокси, создание браузера/страницы) описаны последовательно и без пропусков? [Clarity, Spec §Worker Processing Flow.1]
+- Подтверждено ли в требованиях, что очередь гарантирует эксклюзивную задачу на `item_id` и ведёт подсчёт попыток (с лимитом `MAX_ATTEMPTS`)? [Consistency, Spec §FR-003; Worker Processing Flow.2 & 5]
+- Заданы ли критерии завершения навигации перед `detect_page_state` (ожидание `domcontentloaded` и использование таймаута)? [Clarity, Spec §FR-009; Worker Processing Flow.3]
+- Для каждого результата `detect_page_state` (`card_found`, `removed_or_not_found`, `catalog_page`, `seller_profile`, `proxy_block_403`, `proxy_block_407`, `proxy_block_429`, `captcha_geetest`, `DetectionError`) прописаны действия воркера? [Coverage, Spec §FR-010–FR-013; Worker Processing Flow.4]
+- Указаны ли поля UPSERT и статусы, фиксируемые при `card_found`, вместе с логированием? [Completeness, Spec §FR-010]
+- Описано ли поведение при каталогах/профилях/неожиданных состояниях (порог повторов, смена прокси без блокировки)? [Consistency, Spec §Worker Processing Flow.4]
+- Определён ли формат записи заблокированных прокси `ISO8601	proxy	reason` и процедура снятия блокировки? [Consistency, Spec §FR-012; Edge Cases]
+- Зафиксировано ли, что после неуспешной капчи прокси не блокируется и задача ре-кьюится с новым прокси? [Consistency, Spec §FR-013; Worker Processing Flow.4]
+- Описаны ли лимиты попыток и итоговое состояние `status=error` с `failure_reason='attempt_limit'`? [Completeness, Spec §FR-003; Worker Processing Flow.5]
+- Уточнены ли сценарии обработки исключений и локального рестарта воркера? [Coverage, Spec §FR-014; Worker Processing Flow.6]
+- Определена ли обязательная структура логов (одна строка на событие, формат `event=...`) и перечень событий? [Clarity, Spec §FR-015; User Story 3]
+- Содержит ли спецификация требования к итоговой сводке счётчиков без отдельного модуля метрик? [Consistency, Spec §FR-016–FR-017; Worker Processing Flow.7]
+- Предусмотрены ли действия при полной блокировке пула прокси или длительной недоступности БД? [Coverage, Edge Cases]
+- Описано ли корректное завершение: возврат активной задачи, закрытие браузера/страницы, освобождение прокси, сводка? [Completeness, Spec §FR-017; Worker Processing Flow.7]
